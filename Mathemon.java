@@ -165,6 +165,23 @@ class Mathemon extends Program{
         content[2][0]=""+joueur.lieu;
         saveCSV(content,"Mathemon.CSV");
     }*/
+    
+    int expRequis(Personnage joueur){
+        int nv = joueur.niveau; 
+        double exp = 100;
+        for (int cpt = 0 ; cpt < nv ; cpt = cpt + 1){
+            exp = exp * 1.2;
+        }
+        return (int) exp;
+    }
+    Personnage gagnerExp(Personnage joueur, Ennemie ennemie){
+        joueur.experience = joueur.experience + ennemie.experience;
+        while (joueur.experience >= expRequis(joueur)){
+            joueur.experience = joueur.experience - expRequis(joueur);
+            joueur.niveau = joueur.niveau + 1;
+        }
+        return joueur;
+    }
 
     
     /////////////////////////////////// FONCTION COMBAT//////////////////////////// FONCTION COMBAT/////////////////////////// FONCTION COMBAT//////////////////////////////////
