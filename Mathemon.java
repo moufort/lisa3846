@@ -289,6 +289,17 @@ class Mathemon extends Program{
         }
         return (int)exp;
     }
+    
+    Personnage gagnerExp(Personnage joueur, Ennemie ennemie){
+        joueur.experience = joueur.experience + ennemie.experience;
+        while (joueur.experience >= expRequis(joueur)){
+            joueur.experience = joueur.experience - expRequis(joueur);
+            joueur.niveau = joueur.niveau + 1;
+            outilsDebloquer(joueur);
+            lieuDebloquer(joueur);
+        }
+        return joueur;
+    }
 
     void outilsDebloquer(Personnage joueur){
         int n;
