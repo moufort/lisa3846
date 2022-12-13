@@ -1,80 +1,52 @@
 import extensions.File;
 class Mathemon extends Program{
-/*    void algorithm(){
+    void algorithm(){
         ////////////////// MENU DU JEU ///////////////////////
         boolean fini=false;
+        Personnage joueur = new Personnage();
         afficherMenu();
         int charge;
         do{   
             charge=readInt();
-        }while(charge!=1 && charge!=2);
+        }while(charge!=1 /*&& charge!=2*/);
         
         if(charge==1){
-            chargerNewGame();    /////// À FAIRE //////
-        }else{
+            joueur = newPerso(joueur);  /////// À FAIRE //////
+        }/*else{
             chargerSaveGame();  ///// À FAIRE /////
-        }
+        }*/
 
 
         ///////////////// INITIALISÉ LE JEU ///////////////////
-
+        int choix;
+        Ennemie ennemie;
         while(!fini){
-            afficherInterface();
-            // SI COMBAT //
-            commencerCombat();
-            // SI GERER INVENTAIRE //
-            gererInventaire();
-            // SI FIN DE PARTIE //
-            fermerPartie();
-        }
+            choix=afficherInterface();
+            if(choix==1){
+                afficherStat(joueur);
+            }else if(choix==2){
+                choix=afficherMap(joueur.lieux);
+                if(choix!=0){
+                    //afficherLieu(choix); // faire une foction qui affiche le Lieu choisit grâce a choix (pour les tableau)
+                    ennemie=newEnnemie(0);
+                    commencerCombat(joueur,ennemie);
+                }
+            }else if(choix==3){
+                fini=true;
+                //Sauvegarder(joueur);
+            }
+        }  
+    }
 
+/*
+    Personnage chargerNewGame(){
+        Personnage p=newPerso(p);
+        return p;
+    }
 */
-        ///////////////// DÉBUT DE JEUX ///////////////////////
-
-
-        ///////////////// FIN DE JEUX (SAUVEGARDE) //////////////////////
-
-
-
-
-        /*
-        //////////MENU PRESENTATION //////////
-
-        Presenter au joueur un menu pour qu'il ait le choix entre jeux principal/mini jeux, nouveau perso/chargé perso...
-
-
-        Nous allons avoir besoin de crées un personnage joueur a initialiser donc : initialisationPersonnage()
-        Savoir si il crée un personnage ou en charge un déja crée 
-        gerer son niveau, son inventaire, sa vie...
-        Presenter quete du personnage, ce qu'il doit faire pour avancer (un combat "exemple")
-
-
-        Puis lui présenter un monde ou il va devoir faire des combats mathématique : afficherMonde()
-        idée : lui présenter les mondes découvert en laissant les monde inconnu avec des ????????????
-
-        permettre au joueur d'engager un combats (style donjon avec tableau à 2 dimension pour lui permettre de se déplacer et de tomber aléatoirement sur des ennemies ? ) : créeDonjon()
-                                                 (ou il choisit l'adversaire lui meme dans une liste avec une force et des points de vie aléatoire ? ) 
-        
-
-        ////////GAMEPLAY COMBATS/////////
-
-        Joueur doit répondre un une équation ( style a+b=?) pour touché, si il se trompe, il rate son coup    : réponseEquation()
-        adversaire aura une certaine probabilité de le toucher selon son niveau (à jauger pour équilibrer)    : variable a changé au fur et a mesure :    stat()
-        Si le joueur met trop de temps il rate
-
-        Systeme stat joueur comme point dégat, vie... + prendre en compte si il y a équipement/malus           : combats()
-        (crée un type stat)
-
-        Crée un message et/ou image victoire/défaite + gérer expérience
-
-
-        Si nous voulons rajouter une histoire alors une scéne == un fichier texte ( mais d'abord gameplay)
-
-
-        */
-
-    Personnage newPerso(String nom){
-        Personnage p=new Personnage();
+    Personnage newPerso(Personnage p){
+        println("Comment vous appelez vous? "+"\n");
+        String nom=readString();
         p.nom=nom;
         p.vie=100;
         p.force=10;
@@ -82,30 +54,61 @@ class Mathemon extends Program{
         p.niveau=1;
         p.experience=0;
         p.outils=newOutils();
+        p.lieux=newLieux();
         return p;
     }
 
     Outils newOutils(){
         Outils o =new Outils();
-        o.addition = true;
+        o.listeOutils=new boolean[]{true,false,false,false,false,false,false};
+        /*o.addition = true;
         o.soustraction = false;
         o.multiplication = false;
         o.division = false;
         o.modulo = false;
-        o.puissance = false;
+        o.puissance = false;*/
         return o;
     }
 
     Lieux newLieux(){
+        /*Lieux l=new Lieux();
+        l.listeLieux=new boolean[]{true,false,false,false,false,false,false};
+        l.SListeLieux= new String[]{"foret","ville","jungle","desert","ocean","montagne","prairie"};
+        return l;*/
+        Lieu l1=new Lieu();
+        l1.visiter=true;
+        l1.nom="forêt";
+        Lieu l2=new Lieu();
+        l2.visiter=false;
+        l2.nom="ville";
+        Lieu l3=new Lieu();
+        l3.visiter=false;
+        l3.nom="jungle";
+        Lieu l4=new Lieu();
+        l4.visiter=false;
+        l4.nom="desert";
+        Lieu l5=new Lieu();
+        l5.visiter=false;
+        l5.nom="ocean";
+        Lieu l6=new Lieu();
+        l6.visiter=false;
+        l6.nom="montagne";
+        Lieu l7=new Lieu();
+        l7.visiter=false;
+        l7.nom="prairie ";
         Lieux l=new Lieux();
-        l.lieu1 = false;
-        l.lieu2 = false;
-        l.lieu3 = false;
-        l.lieu4 = false;
-        l.lieu5 = false;
-        l.lieu6 = false;
-        l.lieu7 = false;
+        l.listeLieux=new Lieu[]{l1,l2,l3,l4,l5,l6,l7};
         return l;
+    }
+
+    Ennemie newEnnemie(int nLieu){
+        Ennemie ennemie=new Ennemie();
+        ennemie.nom = "rat";
+        ennemie.vie = 50+20*nLieu;
+        ennemie.force = 5+5*nLieu;
+        ennemie.chance = 40+5*nLieu;
+        ennemie.experience = 20+15*nLieu;
+        return ennemie;
     }
 
     void afficherMenu(){
@@ -115,31 +118,105 @@ class Mathemon extends Program{
         }
     }
 
-    char outilsAlea(Outils outils){
-        String outil= "+-/%";
-        int nbOutils =0;
-        if(outils.soustraction==true){
-            nbOutils+=1;
-        }
-        if(outils.multiplication==true){
-            nbOutils+=1;
-        }
-        if(outils.division==true){
-            nbOutils+=1;
-        }
-        if(outils.modulo==true){
-            nbOutils+=1;
-        }
-        if(outils.puissance==true){
-            nbOutils+=1;
-        }
-        return charAt(outil,(int)random()nbOutils+1);
+    int afficherInterface(){
+        int choix;
+        println("\n"+"1. Voir Stat \n"+
+                "2. Voir map \n"+
+                "3. Quitter"+"\n");
+        do{
+            choix=readInt();
+        }while(choix<1 || choix>3);
+        return choix;
     }
 
-    double donnerEquation(){
+    void afficherStat(Personnage joueur){
+        println("\n"+"nom : "+joueur.nom +"\n"+"vie : "+joueur.vie+"\n"+"force : "+joueur.force+"\n"+"chance : "+joueur.chance+"\n"+"niveau : "+joueur.niveau+"\n"+"exp : "+joueur.experience+"/"+expRequi(joueur)+"\n");
+    }
+
+    int afficherMap(Lieux lieu){
+        println("\n"+"0. Retour"+"\n");
+        int choix;
+        for(int i=1;i<8;i++){
+            if(lieu.listeLieux[i-1].visiter){
+                println(i+". "+lieu.listeLieux[i-1].nom);
+            }else{
+                println(i+". ?????????");
+            }
+        }
+        do{
+            choix=readInt();
+        }while(choix>8 || choix<0);
+        return choix;
+    }
+
+    void afficherScene(Ennemie ennemie){
+        println("\n"+"Vous aller affronter un "+ennemie.nom+"\n"+"Il lui reste "+ennemie.vie+" points de vie"+"\n");
+    }
+
+    /*void Sauvegarder(Personnage joueur){
+        String[][] content=new String[3][8];
+        content[0][0]=""+joueur.nom;
+        content[0][1]=""+joueur.vie;
+        content[0][2]=""+joueur.force;
+        content[0][3]=""+joueur.chance;
+        content[0][4]=""+joueur.niveau;
+        content[0][5]=""+joueur.experience;
+        content[1][0]=""+joueur.outil;
+        content[2][0]=""+joueur.lieu;
+        saveCSV(content,"Mathemon.CSV");
+    }*/
+
+    
+    /////////////////////////////////// FONCTION COMBAT//////////////////////////// FONCTION COMBAT/////////////////////////// FONCTION COMBAT//////////////////////////////////
+
+    void commencerCombat(Personnage joueur, Ennemie ennemie){
+        afficherScene(ennemie);
+        boolean fini=false;
+        boolean gagner=false;
+        while(!fini){
+            tourJoueur(joueur,ennemie);
+            if(ennemie.vie<=0){
+                gagner=true;
+                fini=true;
+            }else{
+              tourEnnemie(ennemie,joueur);  
+              if(joueur.vie<=0){
+                fini=true;
+              }
+            }
+        }
+        // recupererButin(); (SECONDAIRE)
+        afficherFinCombats(gagner);
+    }
+
+    boolean tourJoueur(Personnage joueur, Ennemie ennemie){
+        double res = donnerEquation(joueur);  
+        return verifierReponse(res,ennemie,joueur); 
+    }
+
+    void tourEnnemie(Ennemie ennemie, Personnage joueur){
+        double frappe = random()*100+1;
+        if(frappe<ennemie.chance){
+            joueur.vie-=ennemie.force;
+            println("\n"+"vous avez été touché");
+        }else{
+            println("\n"+"Il vous à rater");
+        }
+        println("\n"+"il vous reste "+joueur.vie+" points de vie");
+    }
+
+    void afficherFinCombats(boolean gagner){
+        if(gagner){
+            println("Bravo vous avez gagné");
+        }else{
+            println("Dommage vous avez perdu");
+        }
+    }
+    
+    double donnerEquation(Personnage joueur){
         int a = (int) (random() * 10);
         int b = (int) (random() * 10);
-        char outils = outilsAlea();
+        char outils = outilsAlea(joueur.outils);
         double res = 0;
         if (outils == '+'){
             res = a + b;
@@ -158,51 +235,58 @@ class Mathemon extends Program{
         return res;
     }
 
-    boolean verifierReponse(double res){
+
+    boolean verifierReponse(double res, Ennemie ennemie, Personnage joueur){
         double x = readDouble();
         if (x == res){
-            println("Bravo vous avez réussi !");
+            println("\n"+"Bravo vous avez réussi !");
+            ennemie.vie-=joueur.force;
+            println("\n"+"Il lui reste "+ennemie.vie+" points de vie"+"\n");
             return true;
         } else {
-            println("Dommage la répponse correcte était : " + res);
+            println("\n"+"Dommage la répponse correcte était : " + res);
             return false;
         }
     }
-
-    void algorithm(){
-        verifierReponse(donnerEquation());
-    }
-
-}
-    /////////////////////////////////// FONCTION COMBAT//////////////////////////// FONCTION COMBAT/////////////////////////// FONCTION COMBAT//////////////////////////////////
-/*
-    void commencerCombat(Personnage joueur, Ennemie ennemie){
-        afficherScene();
-        boolean fini=false;
-        boolean gagner;
-        while(!fini){
-            tourJoueur();
-            tourEnnemie();
+    char outilsAlea(Outils outils){
+        String outil= "+-*%^";
+        int nbOutils =0;
+        boolean trouveFalse=false;
+        int cpt=0;
+        while(!trouveFalse && cpt<5){
+            if(outils.listeOutils[cpt]==true){
+                nbOutils++;
+            }else{
+                trouveFalse=true;
+            }
+            cpt++;
         }
-        recupererButin(); // (SECONDAIRE)
-        afficherFinCombats();
+        return charAt(outil,((int)random()*nbOutils+1)-1);
     }
 
-    void tourJoueur(Personnage joueur){
-        DonnerEquation();  
-        verifierReponse(); // SUREMENT LA PARTIE LA PLUS DURE //
+    /////////////////////////////////// FONCTION EXP//////////////////////////// FONCTION EXP/////////////////////////// FONCTION EXP//////////////////////////////////
+    int expRequi(Personnage joueur){
+        int nv=joueur.niveau;double exp=100;
+        for(int i=0;i<nv;i++){
+            exp=exp*1.2;
+        }
+        return (int)exp;
     }
 
-    void tourEnnemie(Ennemie ennemie){
-
-    }
-
-    void afficherFinCombats(boolean gagner){
-        if(gagner){
-            afficherGagner();
-        }else{
-            afficherPerdu();
+    void outilsDebloquer(Personnage joueur){
+        int n;
+        if(joueur.niveau%5==0){                 // Risque de bug si on passe 2 niveau d'un coup///  
+            n=joueur.niveau/5;
+            joueur.outils.listeOutils[n]
+            =true;
         }
     }
+
+    void lieuDebloquer(Personnage joueur){   // peut être fusionné avec celui au dessus//
+        int n;
+        if(joueur.niveau%5==0){                 // Risque de bug si on passe 2 niveau d'un coup///  
+            n=joueur.niveau/5;
+            joueur.lieux.listeLieux[n].visiter=true;
+        }
+    }
 }
-*/
