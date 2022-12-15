@@ -1,6 +1,8 @@
 import extensions.File;
+import extensions.CSVFile;
 class Mathemon extends Program{
     void algorithm(){
+        CSVFile sauvegarde;
         ////////////////// MENU DU JEU ///////////////////////
         boolean fini=false;
         Personnage joueur = new Personnage();
@@ -8,13 +10,14 @@ class Mathemon extends Program{
         int charge;
         do{   
             charge=readInt();
-        }while(charge!=1 /*&& charge!=2*/);
+        }while(charge!=1 && charge!=2);
         
         if(charge==1){
             joueur = newPerso(joueur);  /////// À FAIRE //////
-        }/*else{
-            chargerSaveGame();  ///// À FAIRE /////
-        }*/
+        }else{
+            sauvegarde=loadCSV("./Mathemon.CSV");
+            joueur = chargerSaveGame(sauvegarde);  ///// À FAIRE /////
+        }
 
 
         ///////////////// INITIALISÉ LE JEU ///////////////////
@@ -28,22 +31,21 @@ class Mathemon extends Program{
                 choix=afficherMap(joueur.lieux);
                 if(choix!=0){
                     //afficherLieu(choix); // faire une foction qui affiche le Lieu choisit grâce a choix (pour les tableau)
-                    ennemie=newEnnemie(0);
+                    ennemie=newEnnemie(choix-1);
                     commencerCombat(joueur,ennemie);
                 }
             }else if(choix==3){
                 fini=true;
-                //Sauvegarder(joueur);
+                Sauvegarder(joueur);
             }
         }  
     }
 
-/*
-    Personnage chargerNewGame(){
-        Personnage p=newPerso(p);
-        return p;
-    }
-*/
+
+
+
+    /////////////////////////////////// FONCTION INITIALISATION//////////////////////////// FONCTION INITIALISATION/////////////////////////// FONCTION INITIALISATION//////////////////////////////////
+
     Personnage newPerso(Personnage p){
         println("Comment vous appelez vous? "+"\n");
         String nom=readString();
@@ -111,6 +113,9 @@ class Mathemon extends Program{
         return ennemie;
     }
 
+
+    /////////////////////////////////// FONCTION AFFICHAGE//////////////////////////// FONCTION AFFICHAGE/////////////////////////// FONCTION AFFICHAGE//////////////////////////////////
+    
     void afficherMenu(){
         File f=new File("File/titre_acceuil");
         while(ready(f)){
@@ -130,7 +135,7 @@ class Mathemon extends Program{
     }
 
     void afficherStat(Personnage joueur){
-        println("\n"+"nom : "+joueur.nom +"\n"+"vie : "+joueur.vie+"\n"+"force : "+joueur.force+"\n"+"chance : "+joueur.chance+"\n"+"niveau : "+joueur.niveau+"\n"+"exp : "+joueur.experience+"/"+expRequi(joueur)+"\n");
+        println("\n"+"nom : "+joueur.nom +"\n"+"vie : "+joueur.vie+"\n"+"force : "+joueur.force+"\n"+"chance : "+joueur.chance+"\n"+"niveau : "+joueur.niveau+"\n"+"exp : "+joueur.experience+"/"+expRequis(joueur)+"\n");
     }
 
     int afficherMap(Lieux lieu){
@@ -153,35 +158,7 @@ class Mathemon extends Program{
         println("\n"+"Vous aller affronter un "+ennemie.nom+"\n"+"Il lui reste "+ennemie.vie+" points de vie"+"\n");
     }
 
-    /*void Sauvegarder(Personnage joueur){
-        String[][] content=new String[3][8];
-        content[0][0]=""+joueur.nom;
-        content[0][1]=""+joueur.vie;
-        content[0][2]=""+joueur.force;
-        content[0][3]=""+joueur.chance;
-        content[0][4]=""+joueur.niveau;
-        content[0][5]=""+joueur.experience;
-        content[1][0]=""+joueur.outil;
-        content[2][0]=""+joueur.lieu;
-        saveCSV(content,"Mathemon.CSV");
-    }*/
     
-    int expRequis(Personnage joueur){
-        int nv = joueur.niveau; 
-        double exp = 100;
-        for (int cpt = 0 ; cpt < nv ; cpt = cpt + 1){
-            exp = exp * 1.2;
-        }
-        return (int) exp;
-    }
-    Personnage gagnerExp(Personnage joueur, Ennemie ennemie){
-        joueur.experience = joueur.experience + ennemie.experience;
-        while (joueur.experience >= expRequis(joueur)){
-            joueur.experience = joueur.experience - expRequis(joueur);
-            joueur.niveau = joueur.niveau + 1;
-        }
-        return joueur;
-    }
 
     
     /////////////////////////////////// FONCTION COMBAT//////////////////////////// FONCTION COMBAT/////////////////////////// FONCTION COMBAT//////////////////////////////////
@@ -194,6 +171,7 @@ class Mathemon extends Program{
             tourJoueur(joueur,ennemie);
             if(ennemie.vie<=0){
                 gagner=true;
+                gagnerExp(joueur, ennemie);
                 fini=true;
             }else{
               tourEnnemie(ennemie,joueur);  
@@ -246,7 +224,7 @@ class Mathemon extends Program{
         } else if (outils == '%'){
             res = a % b;
         } else if (outils == '^'){
-            res = a ^ b;
+            res = puissance(a,b);
         }
         print(a + " " + outils + " " + b + " = ");
         return res;
@@ -282,14 +260,14 @@ class Mathemon extends Program{
     }
 
     /////////////////////////////////// FONCTION EXP//////////////////////////// FONCTION EXP/////////////////////////// FONCTION EXP//////////////////////////////////
-    int expRequi(Personnage joueur){
-        int nv=joueur.niveau;double exp=100;
-        for(int i=0;i<nv;i++){
-            exp=exp*1.2;
+        int expRequis(Personnage joueur){
+        int nv = joueur.niveau; 
+        double exp = 100;
+        for (int cpt = 1 ; cpt < nv ; cpt = cpt + 1){
+            exp = exp * 1.2;
         }
-        return (int)exp;
+        return (int) exp;
     }
-    
     Personnage gagnerExp(Personnage joueur, Ennemie ennemie){
         joueur.experience = joueur.experience + ennemie.experience;
         while (joueur.experience >= expRequis(joueur)){
@@ -305,16 +283,76 @@ class Mathemon extends Program{
         int n;
         if(joueur.niveau%5==0){                 // Risque de bug si on passe 2 niveau d'un coup///  
             n=joueur.niveau/5;
-            joueur.outils.listeOutils[n]
-            =true;
+            joueur.outils.listeOutils[n]=true;
         }
     }
 
     void lieuDebloquer(Personnage joueur){   // peut être fusionné avec celui au dessus//
         int n;
-        if(joueur.niveau%5==0){                 // Risque de bug si on passe 2 niveau d'un coup///  
+        if(joueur.niveau%5==0){   
             n=joueur.niveau/5;
             joueur.lieux.listeLieux[n].visiter=true;
         }
     }
+
+    /////////////////////////////////// FONCTION SAUVEGARDE//////////////////////////// FONCTION SAUVEGARDE////////////////////////// FONCTION SAUVEGARDE//////////////////////////////////
+    void Sauvegarder(Personnage joueur){
+        String[][] content=new String[3][8];
+        content[0][0]=""+joueur.nom;
+        content[0][1]=""+joueur.vie;
+        content[0][2]=""+joueur.force;
+        content[0][3]=""+joueur.chance;
+        content[0][4]=""+joueur.niveau;
+        content[0][5]=""+joueur.experience;
+        for(int i=0;i<6;i++){
+            content[1][i]=""+joueur.outils.listeOutils[i];
+        }
+        for(int i=0;i<7;i++){
+            content[2][i]=""+joueur.lieux.listeLieux[i];
+        }
+        saveCSV(content,"./Mathemon.CSV");
+    }
+
+    Personnage chargerSaveGame(CSVFile sauvegarde){
+        Personnage p =new Personnage();
+        p.nom=getCell(sauvegarde,0,0);
+        p.vie=stringInt(getCell(sauvegarde,0,1));
+        p.force=stringInt(getCell(sauvegarde,0,2));
+        p.chance=stringInt(getCell(sauvegarde,0,3));
+        p.niveau=stringInt(getCell(sauvegarde,0,4));
+        p.experience=stringInt(getCell(sauvegarde,0,5));
+        p.outils=newOutils();
+        p.lieux=newLieux();
+        return p;
+    }
+
+    int stringInt(String texte){
+        int nb=0;
+        for (int i=0;i<length(texte);i++){
+            nb+=(charAt(texte,i)-'0')*puissance(10,length(texte)-i-1);
+        }
+        return nb;
+    }
+
+    void testStringInt(){
+        assertEquals(85,stringInt("85"));
+    }
+
+    int puissance(int nb, int exposant){
+        int reponse=nb;
+        if(exposant==0){
+            return 1;
+        }
+        for(int i=1;i<exposant;i++){
+            reponse*=nb;
+        }
+        return reponse;
+    }
+
+    void testPuissance(){
+        assertEquals(25,puissance(5,2));
+        assertEquals(125,puissance(5,3));
+        assertEquals(81,puissance(3,4));
+    }
+    
 }
