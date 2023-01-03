@@ -16,7 +16,9 @@ class Mathemon extends Program{
             joueur = newPerso(joueur);  /////// À FAIRE //////
         }else{
             sauvegarde=loadCSV("./Mathemon.CSV");
-            joueur = chargerSaveGame(sauvegarde);  ///// À FAIRE /////
+            joueur = chargerSaveGame(sauvegarde);
+            RecupererOutils(joueur);
+            RecupererLieux(joueur);
         }
 
 
@@ -37,6 +39,8 @@ class Mathemon extends Program{
             }else if(choix==3){
                 fini=true;
                 Sauvegarder(joueur);
+            }else if(choix==4){
+                aide();
             }
         }  
     }
@@ -51,6 +55,7 @@ class Mathemon extends Program{
         String nom=readString();
         p.nom=nom;
         p.vie=100;
+        p.vie_max=100;
         p.force=10;
         p.chance=1;
         p.niveau=1;
@@ -117,7 +122,7 @@ class Mathemon extends Program{
     /////////////////////////////////// FONCTION AFFICHAGE//////////////////////////// FONCTION AFFICHAGE/////////////////////////// FONCTION AFFICHAGE//////////////////////////////////
     
     void afficherMenu(){
-        File f=new File("File/titre_acceuil");
+        File f=new File("../ressources/titre_acceuil");
         while(ready(f)){
             println(readLine(f));
         }
@@ -127,10 +132,11 @@ class Mathemon extends Program{
         int choix;
         println("\n"+"1. Voir Stat \n"+
                 "2. Voir map \n"+
-                "3. Quitter"+"\n");
+                "3. Quitter"+"\n"
+                +"4. Aide");
         do{
             choix=readInt();
-        }while(choix<1 || choix>3);
+        }while(choix<1 || choix>4);
         return choix;
     }
 
@@ -273,6 +279,7 @@ class Mathemon extends Program{
         while (joueur.experience >= expRequis(joueur)){
             joueur.experience = joueur.experience - expRequis(joueur);
             joueur.niveau = joueur.niveau + 1;
+            joueur.vie=joueur.vie_max;
             outilsDebloquer(joueur);
             lieuDebloquer(joueur);
         }
@@ -281,16 +288,16 @@ class Mathemon extends Program{
 
     void outilsDebloquer(Personnage joueur){
         int n;
-        if(joueur.niveau%5==0){                 // Risque de bug si on passe 2 niveau d'un coup///  
-            n=joueur.niveau/5;
+        if(joueur.niveau%1==0){
+            n=joueur.niveau/1;
             joueur.outils.listeOutils[n]=true;
         }
     }
 
     void lieuDebloquer(Personnage joueur){   // peut être fusionné avec celui au dessus//
         int n;
-        if(joueur.niveau%5==0){   
-            n=joueur.niveau/5;
+        if(joueur.niveau%1==0){   
+            n=joueur.niveau/1;
             joueur.lieux.listeLieux[n].visiter=true;
         }
     }
@@ -313,6 +320,17 @@ class Mathemon extends Program{
         saveCSV(content,"./Mathemon.CSV");
     }
 
+    /*void ChoisirSauvegarder(Personnage joueur){
+        println("Sur quel plot de sauvegarde voulait sauvegarder ?");
+        afficherSauvegarde();
+        int charge;
+        do{
+           charge=readInt(); 
+        }while(charge<1 || charge>3);
+        String filename="./Mathemon"+charge+".CSV";
+        Sauvegarder(joueur,filename);
+    }*/
+
     Personnage chargerSaveGame(CSVFile sauvegarde){
         Personnage p =new Personnage();
         p.nom=getCell(sauvegarde,0,0);
@@ -325,6 +343,146 @@ class Mathemon extends Program{
         p.lieux=newLieux();
         return p;
     }
+    
+    /*void afficherSauvegarde(){
+        String nom1,nom2,nom3;
+        CSVFile sauvegarde1,sauvegarde2,sauvegarde3;
+        String[] s=getAllFilesFromCurrentDirectory();
+        if(length(s)==0){
+            println("\n"+"1. vide"+ "\n"+
+                         "2. vide"+ "\n"+
+                         "3. vide");
+        }else if(length(s)==1){
+            sauvegarde1=loadCSV("./Mathemon1.CSV");
+            nom1=getCell(sauvegarde1,0,0);
+            println("\n"+"1. "+nom1+ "\n"+
+                         "2. vide"+ "\n"+
+                         "3. vide");
+        }else if(length(s)==2){
+            sauvegarde1=loadCSV("./Mathemon1.CSV");
+            sauvegarde2=loadCSV("./Mathemon2.CSV");
+            nom1=getCell(sauvegarde1,0,0);
+            nom2=getCell(sauvegarde2,0,0);
+            println("\n"+"1. "+nom1+ "\n"+
+                         "2. "+nom2+ "\n"+
+                         "3. vide");
+        }else if(length(s)==3){
+            sauvegarde1=loadCSV("./Mathemon1.CSV");
+            sauvegarde2=loadCSV("./Mathemon2.CSV");
+            sauvegarde3=loadCSV("./Mathemon3.CSV");
+            nom1=getCell(sauvegarde1,0,0);
+            nom2=getCell(sauvegarde2,0,0);
+            nom3=getCell(sauvegarde3,0,0);
+            println("\n"+"1. "+nom1+ "\n"+
+                         "2. "+nom2+ "\n"+
+                         "3. "+nom3);
+        }
+    }
+
+    Personnage ChargerSauvegarde(Personnage joueur){
+        int charge;String nom1,nom2,nom3;
+        CSVFile sauvegarde1=loadCSV("./Mathemon1.CSV");
+        CSVFile sauvegarde2=loadCSV("./Mathemon1.CSV");
+        CSVFile sauvegarde3=loadCSV("./Mathemon1.CSV");
+        String[] s=getAllFilesFromCurrentDirectory();
+        if(length(s)==0){
+            println("Aucune sauvegarde" +"\n"+"1. crée un  personnage");
+            do{
+                charge=readInt();
+            }while(charge!=1);
+            return newPerso(joueur); 
+        }else if(length(s)==1){
+            sauvegarde1=loadCSV("./Mathemon1.CSV");
+            nom1=getCell(sauvegarde1,0,0);
+            println("1. "+nom1);
+        }else if (length(s)==2){
+            sauvegarde1=loadCSV("./Mathemon1.CSV");
+            sauvegarde2=loadCSV("./Mathemon2.CSV");
+            nom1=getCell(sauvegarde1,0,0);
+            nom2=getCell(sauvegarde2,0,0);
+            println("\n"+"1. "+nom1+ "\n"+
+                         "2. "+nom2);
+        }else if (length(s)==3){
+            sauvegarde1=loadCSV("./Mathemon1.CSV");
+            sauvegarde2=loadCSV("./Mathemon2.CSV");
+            sauvegarde3=loadCSV("./Mathemon3.CSV");
+            nom1=getCell(sauvegarde1,0,0);
+            nom2=getCell(sauvegarde2,0,0);
+            nom3=getCell(sauvegarde3,0,0);
+            println("\n"+"1. "+nom1+ "\n"+
+                         "2. "+nom2+ "\n"+
+                         "3. "+nom3);
+        }
+
+        do{
+           charge=readInt(); 
+        }while(charge<1 || charge>length(s));
+        
+        if(charge==1){
+            joueur = chargerSaveGame(sauvegarde1);
+        }else if (charge==2){
+            joueur = chargerSaveGame(sauvegarde2);
+        }else if (charge==3){
+            joueur = chargerSaveGame(sauvegarde3);
+        }
+        return joueur;
+        
+        ///// À FAIRE /////
+        //joueur.outils=RecupererOutils(joueur);
+        //joueur.lieux=RecupererLieux(joueur);
+    }
+
+*/
+
+
+
+
+
+    void RecupererOutils(Personnage p){
+        for(int i=0; i<p.niveau/1; i++){
+            p.outils.listeOutils[i]=true;
+        }
+    }
+
+    void RecupererLieux(Personnage p){
+        for(int i=0; i<p.niveau/1; i++){
+            p.lieux.listeLieux[i].visiter=true;
+        }
+    }
+
+    /////////////////////////////////// FONCTION AIDE//////////////////////////// FONCTION AIDE////////////////////////// FONCTION AIDE//////////////////////////////////
+
+    void aide(){
+        println("Vous êtes dans la section aide, choisissez une section et nous donnerons des explications");
+        println("0. Retour"
+                +"\n"+"1. Principe du jeu"
+                +"\n"+ "2. Combat"
+                +"\n"+"3. monté de niveau");
+        int choix;
+        File f;
+        do{
+            choix=readInt();
+            if(choix==1){
+                f=new File("../ressources/PrincipeJeu");
+                while(ready(f)){
+                    println(readLine(f));
+                }
+            }else if(choix==2){
+                f=new File("../ressources/Combat");
+                while(ready(f)){
+                    println(readLine(f));
+                }
+            }else if (choix==3){
+                f=new File("../ressources/Niveau");
+                while(ready(f)){
+                    println(readLine(f));
+                }
+            }
+        }while(choix!=0);
+    }
+
+
+    /////////////////////////////////// FONCTION AUTRE//////////////////////////// FONCTION AUTRE////////////////////////// FONCTION AUTRE//////////////////////////////////
 
     int stringInt(String texte){
         int nb=0;
